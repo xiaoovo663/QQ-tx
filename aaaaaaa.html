@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QQ头像获取器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #fff;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .description {
+            margin-bottom: 25px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        
+        .input-group {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px 0 0 10px;
+            font-size: 16px;
+            outline: none;
+        }
+        
+        button {
+            background: #ff2d55;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 0 10px 10px 0;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: #ff4d6a;
+        }
+        
+        .avatar-container {
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin: 0 auto 20px;
+        }
+        
+        .download-btn {
+            background: #4cd964;
+            padding: 12px 25px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: inline-block;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .download-btn:hover {
+            background: #5fe273;
+            transform: translateY(-2px);
+        }
+        
+        .error {
+            color: #ffcc00;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .hint {
+            margin-top: 25px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+        
+        footer {
+            margin-top: 40px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QQ头像获取器</h1>
+        <p class="description">输入您的QQ号码，即可获取对应的QQ头像图片</p>
+        
+        <div class="input-group">
+            <input type="text" id="qq-input" placeholder="请输入QQ号码" maxlength="11">
+            <button id="get-avatar">获取头像</button>
+        </div>
+        
+        <div class="error" id="error-msg">请输入有效的QQ号码</div>
+        
+        <div class="avatar-container" id="avatar-container">
+            <img id="avatar-img" class="avatar" src="" alt="QQ头像">
+            <a href="#" class="download-btn" id="download-btn">下载头像</a>
+        </div>
+        
+        <p class="hint">提示：由于腾讯接口限制，部分QQ头像可能无法获取</p>
+    </div>
+    
+    <footer>
+        © 2025 QQ头像获取工具 | 仅供学习交流使用
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const qqInput = document.getElementById('qq-input');
+            const getAvatarBtn = document.getElementById('get-avatar');
+            const avatarContainer = document.getElementById('avatar-container');
+            const avatarImg = document.getElementById('avatar-img');
+            const downloadBtn = document.getElementById('download-btn');
+            const errorMsg = document.getElementById('error-msg');
+            
+            getAvatarBtn.addEventListener('click', function() {
+                const qqNumber = qqInput.value.trim();
+                
+                // 验证QQ号码（5-11位数字）
+                if (!qqNumber || !/^[1-9]\d{4,10}$/.test(qqNumber)) {
+                    errorMsg.style.display = 'block';
+                    avatarContainer.style.display = 'none';
+                    return;
+                }
+                
+                errorMsg.style.display = 'none';
+                
+                // 构建QQ头像URL（使用腾讯官方接口）
+                const avatarUrl = `https://q1.qlogo.cn/g?b=qq&nk=${qqNumber}&s=140`;
+                
+                // 预加载图片
+                const img = new Image();
+                img.onload = function() {
+                    avatarImg.src = avatarUrl;
+                    avatarContainer.style.display = 'block';
+                    
+                    // 设置下载链接
+                    downloadBtn.href = avatarUrl;
+                    downloadBtn.download = `qq-avatar-${qqNumber}.jpg`;
+                };
+                
+                img.onerror = function() {
+                    errorMsg.textContent = '获取头像失败，请检查QQ号码是否正确';
+                    errorMsg.style.display = 'block';
+                    avatarContainer.style.display = 'none';
+                };
+                
+                img.src = avatarUrl;
+            });
+            
+            // 按回车键触发获取
+            qqInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    getAvatarBtn.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
